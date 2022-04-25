@@ -61,7 +61,7 @@ func main() {
 	client := eth.New(*t, nil)
 	head, err := client.BlockNumber(ctx)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	// Use head if block number not provided
@@ -73,7 +73,7 @@ func main() {
 		usageAndExit(fmt.Sprintf("block number is out of range: %d", blockNumber))
 	}
 
-	wallets, err := top(ctx, client, blockNumber)
+	wallets, err := listWallets(ctx, client, *n, blockNumber)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,12 +98,12 @@ func main() {
 
 }
 
-func top(ctx context.Context, client *eth.Client, blockNumber *big.Int) ([]*wallet, error) {
+func listWallets(ctx context.Context, client *eth.Client, numberOfBlocks int, blockNumber *big.Int) ([]*wallet, error) {
 	g, ctx := errgroup.WithContext(ctx)
 	bn := new(big.Int).Set(blockNumber)
 
 	ch := make(chan eth.Transaction)
-	for i := 0; i < *n; i++ {
+	for i := 0; i < numberOfBlocks; i++ {
 		g.Go(func() error {
 			b, err := client.GetBlockByNumber(ctx, bn, true)
 			if err != nil {
