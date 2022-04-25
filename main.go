@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"os"
 	"sort"
+	"time"
 
 	"github.com/ofen/wtop/getblock/eth"
 	"golang.org/x/sync/errgroup"
@@ -57,7 +58,8 @@ func main() {
 		usageAndExit("-n is too high")
 	}
 
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
 	client := eth.New(*t, nil)
 	head, err := client.BlockNumber(ctx)
 	if err != nil {
