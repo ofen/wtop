@@ -50,10 +50,32 @@ type Client struct {
 	Client jsonrpc.RPCClient
 }
 
+// Call sends request to JSON-RPC endpoint.
+// Repeats request on 5xx error up to 5 times.
+func (c *Client) Call(ctx context.Context, method string, params ...interface{}) (*jsonrpc.RPCResponse, error) {
+	var r *jsonrpc.RPCResponse
+	var err error
+	for i := 0; i < 5; i++ {
+		r, err = c.Client.Call(ctx, method, params)
+		if err == nil {
+			break
+		}
+
+		e, ok := err.(*jsonrpc.HTTPError)
+		if ok {
+			if e.Code < 500 {
+				break
+			}
+		}
+	}
+
+	return r, err
+}
+
 // BlockNumber returns the index corresponding to the block number of the current chain head
 // https://getblock.io/docs/available-nodes-methods/ETH/JSON-RPC/eth_blockNumber/.
 func (c *Client) BlockNumber(ctx context.Context) (*big.Int, error) {
-	r, err := c.Client.Call(ctx, "eth_blockNumber")
+	r, err := c.Call(ctx, "eth_blockNumber")
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +92,7 @@ func (c *Client) BlockNumber(ctx context.Context) (*big.Int, error) {
 // https://getblock.io/docs/available-nodes-methods/ETH/JSON-RPC/eth_getBlockByNumber/.
 func (c *Client) GetBlockByNumber(ctx context.Context, blockNumber *big.Int, detailedTransactions bool) (*Block, error) {
 	bn := int2hex(blockNumber)
-	r, err := c.Client.Call(ctx, "eth_getBlockByNumber", bn, detailedTransactions)
+	r, err := c.Call(ctx, "eth_getBlockByNumber", bn, detailedTransactions)
 	if err != nil {
 		return nil, err
 	}
@@ -79,6 +101,7 @@ func (c *Client) GetBlockByNumber(ctx context.Context, blockNumber *big.Int, det
 	err = r.GetObject(&v)
 
 	return v, err
+
 }
 
 // Wei2ether converts wei to ether
@@ -95,7 +118,7 @@ func hex2int(s string) *big.Int {
 
 	_, ok := i.SetString(s, 0)
 	if !ok {
-		panic(fmt.Sprintf("not a valid big integer: %s", s))
+		panic(fmt.Sprintf("valid is not big integer: %s", s))
 	}
 
 	return i

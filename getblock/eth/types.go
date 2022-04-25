@@ -77,7 +77,7 @@ type Transaction struct {
 	GasPrice             *big.Int      `json:"gasPrice"`
 	Hash                 string        `json:"hash"`
 	Input                string        `json:"input"`
-	Nonce                string        `json:"nonce"`
+	Nonce                *big.Int      `json:"nonce"`
 	To                   string        `json:"to"`
 	TransactionIndex     *big.Int      `json:"transactionIndex"`
 	Value                *big.Int      `json:"value"`
@@ -88,7 +88,7 @@ type Transaction struct {
 	MaxFeePerGas         *big.Int      `json:"maxFeePerGas"`
 	MaxPriorityFeePerGas *big.Int      `json:"maxPriorityFeePerGas"`
 	AccessList           []interface{} `json:"accessList"`
-	ChainID              string        `json:"chainId"`
+	ChainID              *big.Int      `json:"chainId"`
 }
 
 func (t *Transaction) UnmarshalJSON(data []byte) error {
@@ -98,12 +98,14 @@ func (t *Transaction) UnmarshalJSON(data []byte) error {
 		BlockNumber          string `json:"blockNumber"`
 		Gas                  string `json:"gas"`
 		GasPrice             string `json:"gasPrice"`
+		Nonce                string `json:"nonce"`
 		TransactionIndex     string `json:"transactionIndex"`
 		Value                string `json:"value"`
 		Type                 string `json:"type"`
 		MaxFeePerGas         string `json:"maxFeePerGas"`
 		MaxPriorityFeePerGas string `json:"maxPriorityFeePerGas"`
 		V                    string `json:"v"`
+		ChainID              string `json:"chainId"`
 		*alias
 	}{
 		alias: (*alias)(t),
@@ -116,12 +118,14 @@ func (t *Transaction) UnmarshalJSON(data []byte) error {
 	t.BlockNumber = hex2int(aux.BlockNumber)
 	t.Gas = hex2int(aux.Gas)
 	t.GasPrice = hex2int(aux.GasPrice)
+	t.Nonce = hex2int(aux.Nonce)
 	t.TransactionIndex = hex2int(aux.TransactionIndex)
 	t.Value = hex2int(aux.Value)
 	t.Type = hex2int(aux.Type)
 	t.MaxFeePerGas = hex2int(aux.MaxFeePerGas)
 	t.MaxPriorityFeePerGas = hex2int(aux.MaxPriorityFeePerGas)
 	t.V = hex2int(aux.V)
+	t.ChainID = hex2int(aux.ChainID)
 
 	return nil
 }
