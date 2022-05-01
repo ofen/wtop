@@ -10,7 +10,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/ofen/wtop/getblock/eth"
+	"github.com/ofen/getblock-go/eth"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -20,7 +20,7 @@ var (
 	v = flag.Bool("v", false, "")
 )
 
-var usage = `Usage: wtop [options...] [<block_number>]
+const usage = `Usage: wtop [options...] [<block_number>]
 Options:
   -n  Number of look-behind blocks. Should be between 1 and 500. Default is 100.
   -t  API token (see https://getblock.io/docs/get-started/auth-with-api-key/).
